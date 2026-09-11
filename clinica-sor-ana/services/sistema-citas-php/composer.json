@@ -1,0 +1,5 @@
+{
+  "name": "clinica-sor-ana/servicio-citas",
+  "description": "Proveedor PHP de citas",
+  "require": { "php": ">=8.1" }
+}

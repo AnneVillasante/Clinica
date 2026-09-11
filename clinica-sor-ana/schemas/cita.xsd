@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="cita">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="id_paciente" type="xs:integer"/>
+        <xs:element name="medico" type="xs:string"/>
+        <xs:element name="especialidad" type="xs:string"/>
+        <xs:element name="fecha" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

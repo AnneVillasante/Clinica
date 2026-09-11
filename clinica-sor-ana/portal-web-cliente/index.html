@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Clínica Sor Ana | Portal del paciente</title>
+  <style>
+    :root { --ink:#172b3a; --muted:#607480; --paper:#f3f6f3; --panel:#fff; --line:#d7e0df; --blue:#1769aa; --orange:#c25d24; --red:#b42318; --green:#16734a; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:linear-gradient(135deg,#e9f1ef,#f7f2e9); color:var(--ink); font-family:Georgia,'Times New Roman',serif; }
+    .shell { width:min(1240px,calc(100% - 32px)); margin:0 auto; padding:32px 0 44px; }
+    header { display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:28px; }
+    .eyebrow { color:var(--blue); font:700 12px/1.2 Arial,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { margin:8px 0 0; font-size:clamp(38px,6vw,70px); line-height:.95; font-weight:400; }
+    .session { min-width:260px; padding:18px; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
+    label { display:block; margin-bottom:7px; font:700 12px Arial,sans-serif; }
+    select,input,button { min-height:40px; border:1px solid var(--line); border-radius:4px; font:15px Arial,sans-serif; }
+    select,input { width:100%; padding:0 10px; background:#fff; color:var(--ink); }
+    button { padding:0 14px; border:0; color:#fff; cursor:pointer; }
+    button:hover { filter:brightness(.92); }
+    .btn-blue { background:var(--blue); } .btn-orange { background:var(--orange); } .btn-red { background:var(--red); }
+    .status { min-height:21px; margin:0 0 20px; color:var(--muted); font:14px Arial,sans-serif; }
+    .services { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    .panel { padding:22px; background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 26px #254c5a12; }
+    .panel h2 { margin:0 0 18px; font-size:28px; font-weight:400; }
+    .panel-citas h2 { color:var(--blue); } .panel-lab h2 { color:var(--orange); }
+    form { display:grid; gap:9px; margin-bottom:22px; }
+    .form-actions { display:flex; gap:8px; margin-top:4px; }
+    .form-actions button { flex:1; }
+    table { width:100%; border-collapse:collapse; font:14px Arial,sans-serif; }
+    th,td { padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    th { color:var(--muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
+    .empty { color:var(--muted); text-align:center; }
+    .hint { margin:0 0 16px; color:var(--muted); font:13px/1.4 Arial,sans-serif; }
+    @media (max-width:800px) { header { display:block; } .session { margin-top:20px; } .services { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div><div class="eyebrow">Clínica Sor Ana</div><h1>Tu salud, en un solo lugar.</h1></div>
+      <section class="session" aria-label="Sesión del paciente">
+        <label for="patient">Paciente activo</label>
+        <select id="patient">
+          <option value="101">101 · Juan Pérez</option>
+          <option value="102">102 · María Gómez</option>
+        </select>
+      </section>
+    </header>
+    <p id="status" class="status" role="status">Selecciona un paciente para cargar sus datos.</p>
+
+    <section class="services">
+      <article class="panel panel-citas">
+        <h2>Citas médicas</h2>
+        <p class="hint">Agenda y administra tus consultas médicas.</p>
+        <form id="appointment-form">
+          <input id="doctor" placeholder="Médico tratante" required>
+          <input id="specialty" placeholder="Especialidad" required>
+          <input id="appointment-date" type="datetime-local" required>
+          <div class="form-actions"><button class="btn-blue" type="submit">Agendar cita</button><button class="btn-blue" type="button" id="refresh-appointments">Actualizar citas</button></div>
+        </form>
+        <table><thead><tr><th>Médico</th><th>Especialidad</th><th>Fecha</th><th></th></tr></thead><tbody id="appointments"></tbody></table>
+      </article>
+
+      <article class="panel panel-lab">
+        <h2>Resultados clínicos</h2>
+        <p class="hint">Consulta y registra la información de tus exámenes.</p>
+        <form id="result-form">
+          <input id="exam" placeholder="Tipo de examen" required>
+          <input id="diagnosis" placeholder="Diagnóstico clínico" required>
+          <div class="form-actions"><button class="btn-orange" type="submit">Registrar resultado</button><button class="btn-orange" type="button" id="refresh-results">Actualizar resultados</button></div>
+        </form>
+        <table><thead><tr><th>Examen</th><th>Diagnóstico</th><th></th></tr></thead><tbody id="results"></tbody></table>
+      </article>
+    </section>
+
+  </main>
+  <script>
+    const SECRET_KEY = 'ClinicaSorAna_ClaveSecretaSegura_2026';
+    const API_CITAS = 'http://localhost:8001';
+    const API_LAB = 'http://localhost:8002';
+    const patientSelect = document.querySelector('#patient');
+    const status = document.querySelector('#status');
+    const parser = new DOMParser();
+
+    function base64Url(value) { return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+    async function hmacHex(text) {
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), { name:'HMAC', hash:'SHA-256' }, false, ['sign']);
+      const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, '0')).join('');
+    }
+    async function jwtForPatient() {
+      const id = Number(patientSelect.value);
+      const header = base64Url(JSON.stringify({ alg:'HS256', typ:'JWT' }));
+      const payload = base64Url(JSON.stringify({ id_paciente:id, exp:Math.floor(Date.now() / 1000) + 3600 }));
+      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), { name:'HMAC', hash:'SHA-256' }, false, ['sign']);
+      const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${payload}`));
+      const encoded = base64Url(String.fromCharCode(...new Uint8Array(signature)));
+      return `${header}.${payload}.${encoded}`;
+    }
+    function xmlNode(name, value) { return `<${name}>${String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</${name}>`; }
+    function citaXml() { return `<cita>${xmlNode('id_paciente', patientSelect.value)}${xmlNode('medico', document.querySelector('#doctor').value)}${xmlNode('especialidad', document.querySelector('#specialty').value)}${xmlNode('fecha', document.querySelector('#appointment-date').value)}</cita>`; }
+    function resultadoXml() { return `<resultado>${xmlNode('id_paciente', patientSelect.value)}${xmlNode('examen', document.querySelector('#exam').value)}${xmlNode('diagnostico', document.querySelector('#diagnosis').value)}</resultado>`; }
+    function escapeHtml(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    async function callApi(url, options = {}) {
+      const token = await jwtForPatient();
+      const headers = { Authorization:`Bearer ${token}`, ...(options.body ? {'Content-Type':'application/xml', 'X-Signature':await hmacHex(options.body)} : {}) };
+      const response = await fetch(url, { ...options, headers });
+      const text = await response.text();
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return parser.parseFromString(text, 'application/xml');
+    }
+    function text(node, selector) { return node.querySelector(selector)?.textContent || ''; }
+    function emptyRow(message, columns) { return `<tr><td class="empty" colspan="${columns}">${message}</td></tr>`; }
+    async function loadAppointments() {
+      const xml = await callApi(API_CITAS);
+      const rows = [...xml.querySelectorAll('cita')];
+      document.querySelector('#appointments').innerHTML = rows.length ? rows.map(row => `<tr><td>${escapeHtml(text(row,'medico'))}</td><td>${escapeHtml(text(row,'especialidad'))}</td><td>${escapeHtml(text(row,'fecha'))}</td><td><button class="btn-red delete-appointment" data-id="${escapeHtml(text(row,'id'))}">Eliminar</button></td></tr>`).join('') : emptyRow('No hay citas para este paciente.', 4);
+    }
+    async function loadResults() {
+      const xml = await callApi(`${API_LAB}/resultados`);
+      const rows = [...xml.querySelectorAll('resultado')];
+      document.querySelector('#results').innerHTML = rows.length ? rows.map(row => `<tr><td>${escapeHtml(text(row,'examen'))}</td><td>${escapeHtml(text(row,'diagnostico'))}</td><td><button class="btn-red delete-result" data-id="${escapeHtml(text(row,'id'))}">Eliminar</button></td></tr>`).join('') : emptyRow('No hay resultados para este paciente.', 3);
+    }
+    async function refreshAll() { status.textContent = 'Cargando tu información...'; try { await Promise.all([loadAppointments(), loadResults()]); status.textContent = 'Información actualizada.'; } catch (error) { status.textContent = 'No fue posible cargar la información. Intenta nuevamente.'; } }
+
+    document.querySelector('#appointment-form').addEventListener('submit', async event => { event.preventDefault(); try { await callApi(API_CITAS, { method:'POST', body:citaXml() }); event.target.reset(); await loadAppointments(); status.textContent = 'Cita agendada correctamente.'; } catch (error) { status.textContent = 'No fue posible agendar la cita.'; } });
+    document.querySelector('#result-form').addEventListener('submit', async event => { event.preventDefault(); try { await callApi(`${API_LAB}/resultados`, { method:'POST', body:resultadoXml() }); event.target.reset(); await loadResults(); status.textContent = 'Resultado registrado correctamente.'; } catch (error) { status.textContent = 'No fue posible registrar el resultado.'; } });
+    document.querySelector('#appointments').addEventListener('click', async event => { if (!event.target.matches('.delete-appointment')) return; try { await callApi(`${API_CITAS}?id=${encodeURIComponent(event.target.dataset.id)}`, { method:'DELETE' }); await loadAppointments(); status.textContent = 'Cita eliminada correctamente.'; } catch (error) { status.textContent = 'No fue posible eliminar la cita.'; } });
+    document.querySelector('#results').addEventListener('click', async event => { if (!event.target.matches('.delete-result')) return; try { await callApi(`${API_LAB}/resultados/${encodeURIComponent(event.target.dataset.id)}`, { method:'DELETE' }); await loadResults(); status.textContent = 'Resultado eliminado correctamente.'; } catch (error) { status.textContent = 'No fue posible eliminar el resultado.'; } });
+    patientSelect.addEventListener('change', refreshAll);
+    document.querySelector('#refresh-appointments').addEventListener('click', loadAppointments);
+    document.querySelector('#refresh-results').addEventListener('click', loadResults);
+    refreshAll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+from .controllers.resultado_controller import resultado_blueprint
+from .controllers.examen_crud_controller import crud_blueprint

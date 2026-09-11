@@ -1,0 +1,10 @@
+{
+  "name": "middleware-esb-node",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Servidor base del ESB planificado para futuras fases de integración",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

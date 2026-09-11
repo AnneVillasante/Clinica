@@ -1,0 +1,35 @@
+:root {
+  color-scheme: light;
+  --ink: #173042;
+  --muted: #5d727b;
+  --paper: #f4f0e9;
+  --white: #fffdf8;
+  --teal: #0d7b78;
+  --coral: #e9795d;
+  --line: #d9d8ce;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; color: var(--ink); background: radial-gradient(circle at 80% 0, #d9eee5 0, transparent 36%), var(--paper); font-family: Georgia, 'Times New Roman', serif; }
+.shell { width: min(1100px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0; }
+.masthead { max-width: 720px; margin-bottom: 48px; }
+.eyebrow { margin: 0 0 12px; color: var(--teal); font: 700 12px/1.2 Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; }
+h1 { max-width: 650px; margin: 0; font-size: clamp(44px, 7vw, 86px); line-height: .94; font-weight: 400; }
+h2, h3 { margin-top: 0; font-weight: 400; }
+.intro { max-width: 500px; color: var(--muted); font-size: 20px; line-height: 1.45; }
+.lookup, article { padding: 28px; background: var(--white); border: 1px solid var(--line); border-radius: 8px; }
+.lookup { max-width: 760px; }
+.lookup label { display: block; margin-bottom: 10px; font: 700 13px Arial, sans-serif; }
+.form-row { display: flex; gap: 10px; }
+input, button { min-height: 48px; border-radius: 4px; font: 16px Arial, sans-serif; }
+input { flex: 1; padding: 0 14px; border: 1px solid var(--line); background: #fff; color: var(--ink); }
+button { padding: 0 22px; border: 0; color: #fff; background: var(--teal); cursor: pointer; }
+button:hover { background: #095e5c; }
+#status { min-height: 20px; margin-bottom: 0; color: var(--coral); font: 14px Arial, sans-serif; }
+.summary { margin-top: 48px; }
+.summary-heading { margin-bottom: 22px; }
+.summary-heading h2 { margin: 0; font-size: 32px; }
+.results-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+article h3 { color: var(--teal); font-size: 24px; }
+pre { min-height: 110px; margin: 0; overflow: auto; color: var(--muted); font: 13px/1.5 Consolas, monospace; white-space: pre-wrap; }
+@media (max-width: 720px) { .shell { width: min(100% - 28px, 560px); padding: 40px 0; } .form-row, .results-grid { grid-template-columns: 1fr; display: grid; } button { width: 100%; } }
