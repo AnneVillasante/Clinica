@@ -3,78 +3,72 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Clínica Sor Ana | Portal del paciente</title>
-  <style>
-    :root { --ink:#172b3a; --muted:#607480; --paper:#f3f6f3; --panel:#fff; --line:#d7e0df; --blue:#1769aa; --orange:#c25d24; --red:#b42318; --green:#16734a; }
-    * { box-sizing:border-box; }
-    body { margin:0; background:linear-gradient(135deg,#e9f1ef,#f7f2e9); color:var(--ink); font-family:Georgia,'Times New Roman',serif; }
-    .shell { width:min(1240px,calc(100% - 32px)); margin:0 auto; padding:32px 0 44px; }
-    header { display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:28px; }
-    .eyebrow { color:var(--blue); font:700 12px/1.2 Arial,sans-serif; letter-spacing:.14em; text-transform:uppercase; }
-    h1 { margin:8px 0 0; font-size:clamp(38px,6vw,70px); line-height:.95; font-weight:400; }
-    .session { min-width:260px; padding:18px; background:var(--panel); border:1px solid var(--line); border-radius:8px; }
-    label { display:block; margin-bottom:7px; font:700 12px Arial,sans-serif; }
-    select,input,button { min-height:40px; border:1px solid var(--line); border-radius:4px; font:15px Arial,sans-serif; }
-    select,input { width:100%; padding:0 10px; background:#fff; color:var(--ink); }
-    button { padding:0 14px; border:0; color:#fff; cursor:pointer; }
-    button:hover { filter:brightness(.92); }
-    .btn-blue { background:var(--blue); } .btn-orange { background:var(--orange); } .btn-red { background:var(--red); }
-    .status { min-height:21px; margin:0 0 20px; color:var(--muted); font:14px Arial,sans-serif; }
-    .services { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
-    .panel { padding:22px; background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 8px 26px #254c5a12; }
-    .panel h2 { margin:0 0 18px; font-size:28px; font-weight:400; }
-    .panel-citas h2 { color:var(--blue); } .panel-lab h2 { color:var(--orange); }
-    form { display:grid; gap:9px; margin-bottom:22px; }
-    .form-actions { display:flex; gap:8px; margin-top:4px; }
-    .form-actions button { flex:1; }
-    table { width:100%; border-collapse:collapse; font:14px Arial,sans-serif; }
-    th,td { padding:10px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
-    th { color:var(--muted); font-size:11px; letter-spacing:.08em; text-transform:uppercase; }
-    .empty { color:var(--muted); text-align:center; }
-    .hint { margin:0 0 16px; color:var(--muted); font:13px/1.4 Arial,sans-serif; }
-    @media (max-width:800px) { header { display:block; } .session { margin-top:20px; } .services { grid-template-columns:1fr; } }
-  </style>
+  <title>Clínica Sor Ana | Portal Clínico SOA</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <main class="shell">
-    <header>
-      <div><div class="eyebrow">Clínica Sor Ana</div><h1>Tu salud, en un solo lugar.</h1></div>
-      <section class="session" aria-label="Sesión del paciente">
-        <label for="patient">Paciente activo</label>
-        <select id="patient">
-          <option value="101">101 · Juan Pérez</option>
-          <option value="102">102 · María Gómez</option>
-        </select>
-      </section>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">+</div>
+        <div><strong>Clínica Sor Ana</strong><small>Portal Clínico SOA</small></div>
+      </div>
+      <div class="topbar-tools">
+        <div class="patient-switcher">
+          <label for="patient">Paciente activo</label>
+          <select id="patient">
+            <option value="101">ID 101 · Juan Pérez</option>
+            <option value="102">ID 102 · María Gómez</option>
+          </select>
+        </div>
+        <div class="session-badges" aria-label="Estado de seguridad">
+          <span class="session-badge"><i></i> Sesión activa</span>
+          <span class="session-badge"><i></i> JWT válido</span>
+          <span class="session-badge"><i></i> Canal cifrado</span>
+        </div>
+        <div class="clock" id="clock" aria-label="Hora actual">--:--:--</div>
+        <button class="icon-button" id="header-sync" type="button" title="Sincronizar servicios" aria-label="Sincronizar servicios">↻</button>
+      </div>
     </header>
-    <p id="status" class="status" role="status">Selecciona un paciente para cargar sus datos.</p>
 
-    <section class="services">
-      <article class="panel panel-citas">
-        <h2>Citas médicas</h2>
-        <p class="hint">Agenda y administra tus consultas médicas.</p>
-        <form id="appointment-form">
-          <input id="doctor" placeholder="Médico tratante" required>
-          <input id="specialty" placeholder="Especialidad" required>
-          <input id="appointment-date" type="datetime-local" required>
-          <div class="form-actions"><button class="btn-blue" type="submit">Agendar cita</button><button class="btn-blue" type="button" id="refresh-appointments">Actualizar citas</button></div>
-        </form>
-        <table><thead><tr><th>Médico</th><th>Especialidad</th><th>Fecha</th><th></th></tr></thead><tbody id="appointments"></tbody></table>
-      </article>
+    <main class="main">
+      <section class="page-heading">
+        <div><p class="kicker">Resumen clínico</p><h1>Buenos días, <span id="patient-name">Juan</span>.</h1><p id="status" role="status">Sincronizando información del paciente...</p></div>
+        <button class="sync-button" id="sync-button" type="button"><span class="refresh-icon">↻</span> Sincronizar Servicios SOA</button>
+      </section>
 
-      <article class="panel panel-lab">
-        <h2>Resultados clínicos</h2>
-        <p class="hint">Consulta y registra la información de tus exámenes.</p>
-        <form id="result-form">
-          <input id="exam" placeholder="Tipo de examen" required>
-          <input id="diagnosis" placeholder="Diagnóstico clínico" required>
-          <div class="form-actions"><button class="btn-orange" type="submit">Registrar resultado</button><button class="btn-orange" type="button" id="refresh-results">Actualizar resultados</button></div>
-        </form>
-        <table><thead><tr><th>Examen</th><th>Diagnóstico</th><th></th></tr></thead><tbody id="results"></tbody></table>
-      </article>
-    </section>
+      <section class="kpi-grid" aria-label="Métricas clínicas">
+        <article class="kpi-card" style="--accent:#0284c7;--tint:#e0f2fe"><div class="kpi-top"><span class="kpi-label">Total Citas Agendadas</span><span class="kpi-icon">◷</span></div><div class="kpi-value" id="appointments-kpi">—</div><div class="kpi-meta">Agenda médica activa</div></article>
+        <article class="kpi-card" style="--accent:#f59e0b;--tint:#fef3c7"><div class="kpi-top"><span class="kpi-label">Exámenes Pendientes</span><span class="kpi-icon">⌁</span></div><div class="kpi-value" id="results-kpi">—</div><div class="kpi-meta">Resultados por revisar</div></article>
+        <article class="kpi-card" style="--accent:#10b981;--tint:#d1fae5"><div class="kpi-top"><span class="kpi-label">Estado de Firma</span><span class="kpi-icon">✓</span></div><div class="kpi-value" id="signature-kpi">Válida</div><div class="kpi-meta good">HMAC-SHA256 activo</div></article>
+        <article class="kpi-card" style="--accent:#0284c7;--tint:#e0f2fe"><div class="kpi-top"><span class="kpi-label">Servicios Disponibles</span><span class="kpi-icon">⌘</span></div><div class="kpi-value" id="services-kpi">— / 2</div><div class="kpi-meta" id="services-meta">Comprobando conexión</div></article>
+      </section>
 
-  </main>
+      <section class="dashboard-grid">
+        <article class="panel" style="--accent:#0284c7;--tint:#e0f2fe">
+          <div class="panel-header"><div class="panel-title"><span class="service-dot"></span><div><h2>Panel de Citas</h2><p>Agenda y administra tus consultas médicas</p></div></div><div class="panel-tools"><button class="ghost-button" id="refresh-appointments" type="button">Actualizar</button></div></div>
+          <div class="form-wrap"><form id="appointment-form" class="form-grid"><div class="form-field"><label for="doctor">Médico tratante</label><input id="doctor" placeholder="Ej. Dra. Valentina Rojas" required></div><div class="form-field"><label for="specialty">Especialidad</label><input id="specialty" placeholder="Ej. Cardiología" required></div><div class="form-field"><label for="appointment-date">Fecha y hora</label><input id="appointment-date" type="datetime-local" required></div><button class="primary-button" type="submit">+ Agendar cita</button></form></div>
+          <div class="table-wrap"><div class="table-toolbar"><span class="table-count" id="appointments-count">0 citas</span><input class="search-input" id="appointment-filter" placeholder="Filtrar citas..." aria-label="Filtrar citas"></div><table><thead><tr><th>Médico</th><th>Especialidad</th><th>Fecha</th><th>Acción</th></tr></thead><tbody id="appointments"></tbody></table></div>
+        </article>
+
+        <article class="panel" style="--accent:#f59e0b;--tint:#fef3c7">
+          <div class="panel-header"><div class="panel-title"><span class="service-dot"></span><div><h2>Panel de Laboratorio</h2><p>Información y diagnóstico de tus exámenes</p></div></div><div class="panel-tools"><button class="ghost-button" id="refresh-results" type="button">Actualizar</button></div></div>
+          <div class="form-wrap"><form id="result-form" class="form-grid"><div class="form-field"><label for="exam">Tipo de examen</label><input id="exam" placeholder="Ej. Hemograma" required></div><div class="form-field"><label for="diagnosis">Resultado / diagnóstico</label><input id="diagnosis" placeholder="Ej. Valores normales" required></div><div class="form-field"><label for="result-state">Estado clínico</label><select id="result-state"><option>Normal</option><option>En observación</option><option>Crítico</option></select></div><button class="primary-button" type="submit">+ Registrar resultado</button></form></div>
+          <div class="table-wrap"><div class="table-toolbar"><span class="table-count" id="results-count">0 resultados</span><input class="search-input" id="result-filter" placeholder="Filtrar resultados..." aria-label="Filtrar resultados"></div><table><thead><tr><th>Examen</th><th>Diagnóstico</th><th>Estado</th><th>Detalle</th></tr></thead><tbody id="results"></tbody></table></div>
+        </article>
+      </section>
+
+      <section class="console" aria-label="Consola de inspección XML">
+        <div class="console-header"><div class="console-title"><span class="console-lights"><i></i><i></i><i></i></span> Consola de Inspección de Tráfico SOA</div><div class="console-actions"><button class="console-button" id="copy-xml" type="button">Copiar XML</button><button class="console-button" id="clear-console" type="button">Limpiar consola</button></div></div>
+        <div class="console-tabs" role="tablist"><button class="console-tab active" data-tab="request" role="tab" type="button">Último Payload XML Enviado</button><button class="console-tab" data-tab="response" role="tab" type="button">Respuesta XML del Servidor</button><button class="console-tab" data-tab="headers" role="tab" type="button">Cabeceras de Seguridad</button></div>
+        <div class="console-body"><pre class="console-code" id="console-content">Selecciona una operación para inspeccionar su comunicación XML.</pre></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+  <div class="modal-backdrop" id="detail-modal" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-header"><h2 id="modal-title">Detalle del registro</h2><button class="modal-close" id="close-modal" type="button" aria-label="Cerrar">×</button></div><div class="modal-content" id="modal-content"></div></section></div>
+
   <script>
     const SECRET_KEY = 'ClinicaSorAna_ClaveSecretaSegura_2026';
     const API_CITAS = 'http://localhost:8001';
@@ -82,55 +76,45 @@
     const patientSelect = document.querySelector('#patient');
     const status = document.querySelector('#status');
     const parser = new DOMParser();
+    const state = { appointments: [], results: [], lastRequest: '', lastResponse: '', headers: '' };
 
+    const names = { 101: 'Juan', 102: 'María' };
     function base64Url(value) { return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
-    async function hmacHex(text) {
-      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), { name:'HMAC', hash:'SHA-256' }, false, ['sign']);
-      const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(text));
-      return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, '0')).join('');
-    }
-    async function jwtForPatient() {
-      const id = Number(patientSelect.value);
-      const header = base64Url(JSON.stringify({ alg:'HS256', typ:'JWT' }));
-      const payload = base64Url(JSON.stringify({ id_paciente:id, exp:Math.floor(Date.now() / 1000) + 3600 }));
-      const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), { name:'HMAC', hash:'SHA-256' }, false, ['sign']);
-      const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${payload}`));
-      const encoded = base64Url(String.fromCharCode(...new Uint8Array(signature)));
-      return `${header}.${payload}.${encoded}`;
-    }
+    async function hmacHex(text) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), { name:'HMAC', hash:'SHA-256' }, false, ['sign']); const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(text)); return Array.from(new Uint8Array(signature), byte => byte.toString(16).padStart(2, '0')).join(''); }
+    async function jwtForPatient() { const id = Number(patientSelect.value); const header = base64Url(JSON.stringify({alg:'HS256',typ:'JWT'})); const payload = base64Url(JSON.stringify({id_paciente:id,exp:Math.floor(Date.now()/1000)+3600})); const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(SECRET_KEY), {name:'HMAC',hash:'SHA-256'}, false, ['sign']); const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${header}.${payload}`)); return `${header}.${payload}.${base64Url(String.fromCharCode(...new Uint8Array(signature)))}`; }
     function xmlNode(name, value) { return `<${name}>${String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</${name}>`; }
-    function citaXml() { return `<cita>${xmlNode('id_paciente', patientSelect.value)}${xmlNode('medico', document.querySelector('#doctor').value)}${xmlNode('especialidad', document.querySelector('#specialty').value)}${xmlNode('fecha', document.querySelector('#appointment-date').value)}</cita>`; }
-    function resultadoXml() { return `<resultado>${xmlNode('id_paciente', patientSelect.value)}${xmlNode('examen', document.querySelector('#exam').value)}${xmlNode('diagnostico', document.querySelector('#diagnosis').value)}</resultado>`; }
     function escapeHtml(value) { return String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-    async function callApi(url, options = {}) {
-      const token = await jwtForPatient();
-      const headers = { Authorization:`Bearer ${token}`, ...(options.body ? {'Content-Type':'application/xml', 'X-Signature':await hmacHex(options.body)} : {}) };
-      const response = await fetch(url, { ...options, headers });
-      const text = await response.text();
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return parser.parseFromString(text, 'application/xml');
-    }
-    function text(node, selector) { return node.querySelector(selector)?.textContent || ''; }
-    function emptyRow(message, columns) { return `<tr><td class="empty" colspan="${columns}">${message}</td></tr>`; }
-    async function loadAppointments() {
-      const xml = await callApi(API_CITAS);
-      const rows = [...xml.querySelectorAll('cita')];
-      document.querySelector('#appointments').innerHTML = rows.length ? rows.map(row => `<tr><td>${escapeHtml(text(row,'medico'))}</td><td>${escapeHtml(text(row,'especialidad'))}</td><td>${escapeHtml(text(row,'fecha'))}</td><td><button class="btn-red delete-appointment" data-id="${escapeHtml(text(row,'id'))}">Eliminar</button></td></tr>`).join('') : emptyRow('No hay citas para este paciente.', 4);
-    }
-    async function loadResults() {
-      const xml = await callApi(`${API_LAB}/resultados`);
-      const rows = [...xml.querySelectorAll('resultado')];
-      document.querySelector('#results').innerHTML = rows.length ? rows.map(row => `<tr><td>${escapeHtml(text(row,'examen'))}</td><td>${escapeHtml(text(row,'diagnostico'))}</td><td><button class="btn-red delete-result" data-id="${escapeHtml(text(row,'id'))}">Eliminar</button></td></tr>`).join('') : emptyRow('No hay resultados para este paciente.', 3);
-    }
-    async function refreshAll() { status.textContent = 'Cargando tu información...'; try { await Promise.all([loadAppointments(), loadResults()]); status.textContent = 'Información actualizada.'; } catch (error) { status.textContent = 'No fue posible cargar la información. Intenta nuevamente.'; } }
+    function citaXml() { return `<cita>${xmlNode('id_paciente',patientSelect.value)}${xmlNode('medico',document.querySelector('#doctor').value)}${xmlNode('especialidad',document.querySelector('#specialty').value)}${xmlNode('fecha',document.querySelector('#appointment-date').value)}</cita>`; }
+    function resultadoXml() { return `<resultado>${xmlNode('id_paciente',patientSelect.value)}${xmlNode('examen',document.querySelector('#exam').value)}${xmlNode('diagnostico',document.querySelector('#diagnosis').value)}</resultado>`; }
+    function showToast(title, message, type = 'success') { const toast = document.createElement('div'); toast.className = `toast ${type}`; toast.innerHTML = `<div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(message)}</span></div>`; document.querySelector('#toast-region').append(toast); setTimeout(() => toast.remove(), 3800); }
+    function xmlText(node, selector) { return node.querySelector(selector)?.textContent || ''; }
+    function xmlEscape(value) { return escapeHtml(value); }
+    function setConsole(tab, value) { state[tab] = value; document.querySelector('#console-content').textContent = value || 'Sin datos para mostrar.'; }
+    function updateKpis() { document.querySelector('#appointments-kpi').textContent = state.appointments.length; document.querySelector('#results-kpi').textContent = state.results.filter(row => /pendiente|observaci|crítico/i.test(row.diagnostico)).length; }
+    function renderAppointments() { const filter = document.querySelector('#appointment-filter').value.toLowerCase(); const rows = state.appointments.filter(row => `${row.medico} ${row.especialidad} ${row.fecha}`.toLowerCase().includes(filter)); document.querySelector('#appointments-count').textContent = `${rows.length} ${rows.length === 1 ? 'cita' : 'citas'}`; document.querySelector('#appointments').innerHTML = rows.length ? rows.map(row => `<tr data-type="appointment" data-id="${row.id}"><td><span class="cell-primary">${xmlEscape(row.medico)}</span></td><td><span class="badge">${xmlEscape(row.especialidad)}</span></td><td>${xmlEscape(row.fecha)}</td><td><button class="row-action delete-appointment" data-id="${row.id}" title="Eliminar cita" aria-label="Eliminar cita">×</button></td></tr>`).join('') : '<tr><td class="empty" colspan="4">No hay citas para este paciente.</td></tr>'; }
+    function resultBadge(diagnosis) { const value = /crítico/i.test(diagnosis) ? 'Crítico' : /observaci/i.test(diagnosis) ? 'En observación' : 'Normal'; const style = value === 'Crítico' ? 'red' : value === 'En observación' ? 'amber' : 'green'; return `<span class="badge ${style}">${value}</span>`; }
+    function renderResults() { const filter = document.querySelector('#result-filter').value.toLowerCase(); const rows = state.results.filter(row => `${row.examen} ${row.diagnostico}`.toLowerCase().includes(filter)); document.querySelector('#results-count').textContent = `${rows.length} ${rows.length === 1 ? 'resultado' : 'resultados'}`; document.querySelector('#results').innerHTML = rows.length ? rows.map(row => `<tr data-type="result" data-id="${row.id}"><td><span class="cell-primary">${xmlEscape(row.examen)}</span></td><td>${xmlEscape(row.diagnostico)}</td><td>${resultBadge(row.diagnostico)}</td><td><button class="ghost-button view-result" data-id="${row.id}" type="button">Ver detalle</button></td></tr>`).join('') : '<tr><td class="empty" colspan="4">No hay resultados para este paciente.</td></tr>'; }
+    function readAppointments(xml) { state.appointments = [...xml.querySelectorAll('cita')].map(row => ({ id:xmlText(row,'id'), medico:xmlText(row,'medico'), especialidad:xmlText(row,'especialidad'), fecha:xmlText(row,'fecha') })); renderAppointments(); updateKpis(); }
+    function readResults(xml) { state.results = [...xml.querySelectorAll('resultado')].map(row => ({ id:xmlText(row,'id'), examen:xmlText(row,'examen'), diagnostico:xmlText(row,'diagnostico') })); renderResults(); updateKpis(); }
+    async function callApi(url, options = {}) { const token = await jwtForPatient(); const signature = options.body ? await hmacHex(options.body) : ''; const headers = { Authorization:`Bearer ${token}`, ...(options.body ? {'Content-Type':'application/xml','X-Signature':signature} : {}) }; const response = await fetch(url, {...options,headers}); const text = await response.text(); state.lastRequest = options.body || '(sin cuerpo)'; state.lastResponse = text; state.headers = `Authorization: Bearer ${token}\nX-Signature: ${signature || '(no aplica)'}\nContent-Type: ${headers['Content-Type'] || 'application/xml'}`; setConsole('request', state.lastRequest); if (!response.ok) throw new Error(`HTTP ${response.status}`); setConsole('response', text); return parser.parseFromString(text,'application/xml'); }
+    async function loadAppointments() { const xml = await callApi(API_CITAS); readAppointments(xml); return true; }
+    async function loadResults() { const xml = await callApi(`${API_LAB}/resultados`); readResults(xml); return true; }
+    async function refreshAll() { const button = document.querySelector('#sync-button'); button.classList.add('is-loading'); status.textContent = 'Sincronizando información clínica...'; try { const responses = await Promise.allSettled([loadAppointments(),loadResults()]); const ready = responses.filter(item => item.status === 'fulfilled').length; document.querySelector('#services-kpi').textContent = `${ready} / 2`; document.querySelector('#services-meta').textContent = ready === 2 ? 'Conexión estable' : 'Revisar disponibilidad'; status.textContent = ready === 2 ? 'Información actualizada.' : 'Algunos datos no están disponibles.'; showToast(ready === 2 ? 'Sincronización completada' : 'Sincronización parcial', ready === 2 ? 'Los servicios respondieron correctamente.' : 'Revisa la conexión de los servicios.', ready === 2 ? 'success' : 'warning'); } catch (error) { status.textContent = 'No fue posible cargar la información.'; showToast('Error de conexión','No fue posible sincronizar los servicios.','error'); } finally { button.classList.remove('is-loading'); } }
+    function openModal(title, data) { document.querySelector('#modal-title').textContent = title; document.querySelector('#modal-content').innerHTML = `<dl class="detail-list">${Object.entries(data).map(([key,value]) => `<div><dt>${xmlEscape(key)}</dt><dd>${xmlEscape(value)}</dd></div>`).join('')}</dl>`; document.querySelector('#detail-modal').hidden = false; }
+    function closeModal() { document.querySelector('#detail-modal').hidden = true; }
 
-    document.querySelector('#appointment-form').addEventListener('submit', async event => { event.preventDefault(); try { await callApi(API_CITAS, { method:'POST', body:citaXml() }); event.target.reset(); await loadAppointments(); status.textContent = 'Cita agendada correctamente.'; } catch (error) { status.textContent = 'No fue posible agendar la cita.'; } });
-    document.querySelector('#result-form').addEventListener('submit', async event => { event.preventDefault(); try { await callApi(`${API_LAB}/resultados`, { method:'POST', body:resultadoXml() }); event.target.reset(); await loadResults(); status.textContent = 'Resultado registrado correctamente.'; } catch (error) { status.textContent = 'No fue posible registrar el resultado.'; } });
-    document.querySelector('#appointments').addEventListener('click', async event => { if (!event.target.matches('.delete-appointment')) return; try { await callApi(`${API_CITAS}?id=${encodeURIComponent(event.target.dataset.id)}`, { method:'DELETE' }); await loadAppointments(); status.textContent = 'Cita eliminada correctamente.'; } catch (error) { status.textContent = 'No fue posible eliminar la cita.'; } });
-    document.querySelector('#results').addEventListener('click', async event => { if (!event.target.matches('.delete-result')) return; try { await callApi(`${API_LAB}/resultados/${encodeURIComponent(event.target.dataset.id)}`, { method:'DELETE' }); await loadResults(); status.textContent = 'Resultado eliminado correctamente.'; } catch (error) { status.textContent = 'No fue posible eliminar el resultado.'; } });
-    patientSelect.addEventListener('change', refreshAll);
-    document.querySelector('#refresh-appointments').addEventListener('click', loadAppointments);
-    document.querySelector('#refresh-results').addEventListener('click', loadResults);
+    document.querySelector('#appointment-form').addEventListener('submit', async event => { event.preventDefault(); try { await callApi(API_CITAS,{method:'POST',body:citaXml()}); event.target.reset(); await loadAppointments(); showToast('Cita agendada','La cita fue registrada correctamente.'); } catch (error) { showToast('No fue posible agendar','Verifica la información e inténtalo de nuevo.','error'); } });
+    document.querySelector('#result-form').addEventListener('submit', async event => { event.preventDefault(); const diagnosis = document.querySelector('#diagnosis'); if (document.querySelector('#result-state').value !== 'Normal') diagnosis.value = `${document.querySelector('#result-state').value}: ${diagnosis.value}`; try { await callApi(`${API_LAB}/resultados`,{method:'POST',body:resultadoXml()}); event.target.reset(); await loadResults(); showToast('Resultado registrado','El resultado fue guardado correctamente.'); } catch (error) { showToast('No fue posible registrar','Verifica la información e inténtalo de nuevo.','error'); } });
+    document.querySelector('#appointments').addEventListener('click', async event => { const button = event.target.closest('.delete-appointment'); if (!button || !confirm('¿Deseas eliminar esta cita?')) return; try { await callApi(`${API_CITAS}?id=${encodeURIComponent(button.dataset.id)}`,{method:'DELETE'}); await loadAppointments(); showToast('Cita eliminada','La cita fue eliminada correctamente.'); } catch (error) { showToast('No fue posible eliminar','Inténtalo nuevamente.','error'); } });
+    document.querySelector('#results').addEventListener('click', event => { const button = event.target.closest('.view-result'); if (!button) return; const row = state.results.find(item => item.id === button.dataset.id); if (row) openModal('Detalle del resultado', row); });
+    document.querySelector('#patient').addEventListener('change', () => { document.querySelector('#patient-name').textContent = names[patientSelect.value]; refreshAll(); });
+    document.querySelector('#header-sync').addEventListener('click', refreshAll); document.querySelector('#sync-button').addEventListener('click', refreshAll); document.querySelector('#refresh-appointments').addEventListener('click', loadAppointments); document.querySelector('#refresh-results').addEventListener('click', loadResults);
+    document.querySelector('#appointment-filter').addEventListener('input', renderAppointments); document.querySelector('#result-filter').addEventListener('input', renderResults);
+    document.querySelectorAll('.console-tab').forEach(tab => tab.addEventListener('click', () => { document.querySelectorAll('.console-tab').forEach(item => item.classList.remove('active')); tab.classList.add('active'); setConsole(tab.dataset.tab, state[tab.dataset.tab]); }));
+    document.querySelector('#copy-xml').addEventListener('click', async () => { await navigator.clipboard.writeText(document.querySelector('#console-content').textContent); showToast('XML copiado','El contenido está disponible en el portapapeles.'); });
+    document.querySelector('#clear-console').addEventListener('click', () => { state.lastRequest = ''; state.lastResponse = ''; state.headers = ''; setConsole('request','Consola limpia.'); });
+    document.querySelector('#close-modal').addEventListener('click', closeModal); document.querySelector('#detail-modal').addEventListener('click', event => { if (event.target.id === 'detail-modal') closeModal(); });
+    setInterval(() => { document.querySelector('#clock').textContent = new Date().toLocaleTimeString('es-CO',{hour12:false}); }, 1000); document.querySelector('#clock').textContent = new Date().toLocaleTimeString('es-CO',{hour12:false});
     refreshAll();
   </script>
 </body>
