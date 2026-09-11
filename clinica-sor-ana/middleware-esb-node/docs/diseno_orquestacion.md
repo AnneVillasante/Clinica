@@ -1,13 +1,13 @@
-# Diseño de orquestación futura
+# Alcance de integración XML
 
 ## Alcance actual
 
-Esta entrega termina en Inicio y Planificación. Los sistemas de citas, laboratorio y facturación son aplicaciones autónomas, con bases aisladas y contratos publicados. No existe comunicación backend-a-backend ni SQL cruzado.
+La entrega integra exclusivamente los sistemas autónomos de Citas y Laboratorio mediante XML sobre HTTP. Cada sistema mantiene su propia base MySQL, contrato XSD y bitácora de auditoría. No existe SQL cruzado ni dependencia de facturación.
 
 ## Fase futura de ejecución
 
-El ESB Node.js deberá consumir las tres capacidades de grano grueso y construir un resumen unificado mediante llamadas concurrentes. La autorización deberá separar permisos clínicos y financieros antes de exponer datos al portal.
+El portal web consume directamente ambos proveedores y muestra las operaciones de negocio. La autenticación usa `Authorization: Bearer`, la integridad usa `X-Signature` y los cuerpos de escritura se validan contra sus XSD antes de tocar MySQL.
 
 ## Evolución prevista
 
-La pasarela de pagos, el despliegue cloud y la expansión del catálogo a más de 75 servicios se realizarán en Ejecución y Despliegue para la entrega final del 10 de diciembre.
+Facturación, pagos, ESB y despliegue cloud están fuera del alcance de esta entrega y no forman parte del flujo evaluado.

@@ -67,6 +67,13 @@ function bodySignatureIsValid(string $rawBody): bool {
 
 function parseCita(string $rawBody): SimpleXMLElement {
     if ($rawBody === '') xmlError('El cuerpo XML es obligatorio', 400);
+    $dom = new DOMDocument();
+    $dom->preserveWhiteSpace = false;
+    libxml_use_internal_errors(true);
+    if (!$dom->loadXML($rawBody, LIBXML_NONET) || !$dom->schemaValidate(__DIR__ . '/../../schemas/cita.xsd')) {
+        libxml_clear_errors();
+        xmlError('El XML de cita no cumple schemas/cita.xsd', 422);
+    }
     libxml_use_internal_errors(true);
     $xml = simplexml_load_string($rawBody, SimpleXMLElement::class, LIBXML_NONET);
     if ($xml === false || $xml->getName() !== 'cita') xmlError('XML de cita inválido', 400);

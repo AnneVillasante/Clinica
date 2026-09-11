@@ -6,14 +6,17 @@ import os
 import time
 import xml.etree.ElementTree as ET
 from functools import wraps
+from pathlib import Path
 
 import mysql.connector
+import xmlschema
 from flask import Flask, Response, request
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app, resources={r'/*': {'origins': '*'}}, allow_headers=['Content-Type', 'Authorization', 'X-Signature'])
 SECRET_KEY = (os.getenv('SECURITY_SECRET') or 'ClinicaSorAna_ClaveSecretaSegura_2026').encode()
+RESULTADO_SCHEMA = xmlschema.XMLSchema((Path(__file__).resolve().parents[2] / 'schemas' / 'resultado.xsd').as_uri())
 
 
 @app.errorhandler(404)
@@ -138,6 +141,7 @@ def add_resultado(patient_id: int):
     if not valid_signature():
         return xml_error('Fallo de integridad: X-Signature inválida', 400)
     try:
+        RESULTADO_SCHEMA.validate(request.get_data())
         root = ET.fromstring(request.get_data())
         if root.tag != 'resultado':
             return xml_error('XML de resultado inválido', 400)
@@ -147,8 +151,8 @@ def add_resultado(patient_id: int):
             return xml_error('Faltan campos obligatorios', 400)
         if int(values['id_paciente']) != patient_id:
             return xml_error('No autorizado para otro paciente', 403)
-    except (ET.ParseError, ValueError):
-        return xml_error('XML de resultado inválido', 400)
+    except (ET.ParseError, ValueError, xmlschema.XMLSchemaException):
+        return xml_error('El XML de resultado no cumple schemas/resultado.xsd', 422)
 
     connection = get_db()
     cursor = connection.cursor()

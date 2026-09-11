@@ -5,7 +5,6 @@ const port = Number(process.env.PORT || 3000);
 const services = {
   citas: process.env.CITAS_URL || 'http://localhost:8001/citas/paciente',
   laboratorio: process.env.LABORATORIO_URL || 'http://localhost:8002/resultados/paciente',
-  facturacion: process.env.FACTURACION_URL || 'http://localhost:8003/comprobantes/paciente',
 };
 
 function sendJson(response, status, payload) {

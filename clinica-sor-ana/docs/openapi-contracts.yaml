@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Contratos SOA de Clínica Sor Ana
+  title: Contratos XML de Clínica Sor Ana
   version: 1.0.0
   description: Capacidades de grano grueso expuestas por sistemas autónomos durante Inicio y Planificación.
 servers:
@@ -8,24 +8,31 @@ servers:
     description: Sistema autónomo de citas PHP
   - url: http://localhost:8002
     description: Sistema autónomo de laboratorio Python
-  - url: http://localhost:8003
-    description: Sistema autónomo de facturación Java
 paths:
-  /citas/paciente/{id}:
+  /:
     get:
       operationId: ConsultarCitasPorPaciente
       summary: Consulta las citas de un paciente
-      parameters: [{ name: id, in: path, required: true, schema: { type: string, example: PAC-1002 } }]
-      responses: { '200': { description: Lista de citas del sistema de citas } }
-  /resultados/paciente/{id}:
+      parameters: []
+      responses: { '200': { description: Lista XML de citas del sistema de citas } }
+    post:
+      operationId: CrearCita
+      summary: Registra una cita XML
+      requestBody:
+        required: true
+        content:
+          application/xml: { schema: { $ref: '../schemas/cita.xsd' } }
+      responses: { '201': { description: Cita creada } }
+  /resultados:
     get:
       operationId: ConsultarResultadosPorPaciente
       summary: Consulta resultados clínicos de un paciente
-      parameters: [{ name: id, in: path, required: true, schema: { type: string, example: PAC-1002 } }]
-      responses: { '200': { description: Lista de resultados del sistema de laboratorio } }
-  /comprobantes/paciente/{id}:
-    get:
-      operationId: ConsultarComprobantesPorPaciente
-      summary: Consulta comprobantes de un paciente
-      parameters: [{ name: id, in: path, required: true, schema: { type: string, example: PAC-1002 } }]
-      responses: { '200': { description: Lista de comprobantes del sistema de facturación } }
+      responses: { '200': { description: Lista XML de resultados del sistema de laboratorio } }
+    post:
+      operationId: CrearResultado
+      summary: Registra un resultado XML
+      requestBody:
+        required: true
+        content:
+          application/xml: { schema: { $ref: '../schemas/resultado.xsd' } }
+      responses: { '201': { description: Resultado creado } }
